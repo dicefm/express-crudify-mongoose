@@ -127,4 +127,34 @@ describe('crudify integration test', () => {
             });
         });
     });
+
+
+    describe('faulty usage', () => {
+        before(async () => {
+            db = mongoose.createConnection('mongodb://localhost:27017/express-crudify-mongoose--integration_tests');
+
+            const UserSchema = new Schema({
+                name : {type: String, required: true},
+                email: {type: String, required: true},
+                admin: {type: Boolean, default: false, required: true},
+            });
+
+            Model = db.model('user', UserSchema);
+        });
+
+        it('should blow up when trying to protect deep properties', async () => {
+            let err;
+            try {
+                const crud = crudify({
+                    Model,
+                    readonly: ['deep.nested'],
+                });
+            } catch (_err) {
+                err = _err;
+            }
+
+            expect(err).to.be.an.instanceof(Error);
+            expect(err.message).to.eq('You can only define readonly properties on the root level');
+        });
+    });
 });
