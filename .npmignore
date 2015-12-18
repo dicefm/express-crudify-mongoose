@@ -2,5 +2,4 @@
 *.log
 *.spec.js
 test
-examples
 coverage

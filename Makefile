@@ -12,8 +12,8 @@ build:
 run:
 	DEBUG=crudify* npm run test:watch
 
-express:
-	DEBUG=crudify* nodemon ./examples/express
+example-babel:
+	DEBUG=crudify* nodemon ./examples/babel
 
 setup:
 	npm install
