@@ -85,6 +85,29 @@ describe('crudify integration test', () => {
                 expect(_id).to.be.truthy;
             });
 
+
+            it('should be accessible through `/users`', async () => {
+                const {statusCode, body} = await req.get('/users');
+
+                expect(statusCode).to.eq(200);
+                expect(body).to.be.an('array');
+
+                expect(body.length).to.eq(1);
+                expect(body[0]._id).to.eq(_id);
+            });
+
+            it('should be accessible through `/users/:_id`', async () => {
+                const {statusCode, body} = await req.get(`/users/${_id}`);
+
+                expect(statusCode).to.eq(200);
+                expect(body).to.be.an('object');
+
+                expect(body._id).to.eq(_id);
+                expect(body.name).to.eq(name);
+                expect(body.email).to.eq(email);
+            });
+
+
             it('should be updateable', async () => {
                 email = `user+${Math.random}@example.com`;
 
@@ -117,6 +140,12 @@ describe('crudify integration test', () => {
                     const {body, statusCode} = await req.delete(`/users/${_id}`);
 
                     expect(statusCode).to.eq(204);
+                });
+
+                it('shouldnt be deletable twice', async () => {
+                    const {body, statusCode} = await req.delete(`/users/${_id}`);
+
+                    expect(statusCode).to.eq(404);
                 });
 
                 it('should have been deleted', async () => {
