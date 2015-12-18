@@ -1,0 +1,4 @@
+--compilers js:babel/register
+--recursive
+./test/mocha.js
+./src/**/*.spec.js
