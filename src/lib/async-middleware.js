@@ -5,7 +5,7 @@ export default (fn) => {
         try {
             await fn(req, res, next);
         } catch (err) {
-            console.log('asyncMiddleware failed', err, err.stack);
+            debug('asyncMiddleware failed', err, err.stack);
             next(err);
         }
     };
