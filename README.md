@@ -20,13 +20,44 @@ Produces a simple CRUD interface.
 
 ## Usage
 
-### Installation
+```
+npm install express-crudify-mongoose --save
+```
 
-1. Clone project
-* run `make setup`.
+```jsx
+const UserSchema = new Schema({
+    name : {type: String, required: true},
+    email: {type: String, required: true},
+    admin: {type: Boolean, default: false, required: true},
+});
+
+const Users = db.model('user', UserSchema);
+const readonly = ['admin'];
+
+const crud = crudify({
+    readonly,
+    Model: Users,
+});
+
+server.use('/users', crud);
+```
+
+Will create following endpoints
+
+* GET `/users`
+* POST `/users`
+* GET `/users:_id`
+* PATCH `/users/:_id`
+* DELETE `/users/:_id`
+
+There's also some ways of filtering/selecting/formatting your output - documentation TBC.
 
 
 ### Development
+
+1. Clone project
+* `make setup`
+* `make run`
 
 
 #### Git Commit Messages
