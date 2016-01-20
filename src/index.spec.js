@@ -155,6 +155,47 @@ describe('crudify integration test', () => {
                 });
             });
         });
+
+        describe('pagination', () => {
+            const NUM_ENTRIES = 9;
+
+            before(async () => {
+                for (let i=0; i<NUM_ENTRIES; i++) {
+                    const name = 'Name index #' + i;
+                    const email = `user+${i}@example.com`;
+                    const reqBody = {
+                        name,
+                        email,
+                    };
+                    const {body, statusCode} = await req.post('/users').send(reqBody);
+                    expect(statusCode).to.eq(201);
+                }
+            });
+
+            it('should display everything', async () => {
+                const {body, statusCode} = await req.get('/users');
+
+                expect(body.length).to.eq(NUM_ENTRIES);
+            });
+
+            it('?$skip=2 should skip 2', async () => {
+                const {body, statusCode} = await req.get('/users?$skip=2');
+
+                expect(body.length).to.eq(NUM_ENTRIES - 2);
+            });
+
+            it('?$limit=2 should limit to 2', async () => {
+                const {body, statusCode} = await req.get('/users?$limit=2');
+
+                expect(body.length).to.eq(2);
+            });
+
+            it('?$skip=${NUM_ENTRIES-1}&$limit=2 should show 1', async () => {
+                const {body, statusCode} = await req.get(`/users?$skip=${NUM_ENTRIES-1}&$limit=2`);
+
+                expect(body.length).to.eq(1);
+            });
+        });
     });
 
     describe('preSave', () => {
@@ -267,7 +308,6 @@ describe('crudify integration test', () => {
             expect(statusCode).to.not.eq(201);
         });
     });
-
 
     describe('faulty usage', () => {
         before(async () => {
