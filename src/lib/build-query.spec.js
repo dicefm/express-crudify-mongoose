@@ -96,6 +96,24 @@ describe('buildQuery', () => {
             expect(query.limit).to.have.been.callCount(1);
             expect(query.limit).to.have.been.calledWith(2);
         });
+
+        it('should blow up with invalid types', () => {
+            const req = {
+                query: {
+                    $limit: {},
+                }
+            };
+
+            let err;
+            try {
+                buildQuery({req, query});
+            } catch (e) {
+                err = e;
+            }
+
+            expect(err).to.be.an.instanceof(Error);
+            expect(err.message).to.eq(`Invalid value for param '$limit'`);
+        });
     });
 
     describe('?$skip=x', () => {
@@ -110,6 +128,24 @@ describe('buildQuery', () => {
 
             expect(query.skip).to.have.been.callCount(1);
             expect(query.skip).to.have.been.calledWith(3);
+        });
+
+        it('should blow up with invalid types', () => {
+            const req = {
+                query: {
+                    $skip: {},
+                }
+            };
+
+            let err;
+            try {
+                buildQuery({req, query});
+            } catch (e) {
+                err = e;
+            }
+
+            expect(err).to.be.an.instanceof(Error);
+            expect(err.message).to.eq(`Invalid value for param '$skip'`);
         });
     });
 });
