@@ -198,6 +198,117 @@ describe('crudify integration test', () => {
         });
     });
 
+    describe('preSave', () => {
+        let preSave1, preSave2, preSave3MaybeFail;
+        let shouldFail;
+
+        beforeEach(async () => {
+            shouldFail = false;
+
+            server = express();
+            server.use(bodyParser.json());
+
+            preSave1 = sinon.spy(() => {});
+            preSave2 = sinon.spy(() => {});
+            preSave3MaybeFail = sinon.spy(({name}) => {
+                if (shouldFail) {
+                    let err = new Error(`invalid value name='${name}'`);
+                    err.statusCode = 400;
+                    throw err;
+                }
+            });
+
+            db = mongoose.createConnection('mongodb://localhost:27017/express-crudify-mongoose--integration_tests');
+
+            const UserSchema = new Schema({
+                name : {type: String, required: true},
+                email: {type: String, required: true},
+                admin: {type: Boolean, default: false, required: true},
+            });
+
+            Model = db.model('user', UserSchema);
+            const readonly = ['admin'];
+
+            const crud = crudify({
+                Model,
+                readonly,
+                preSave: [preSave1, preSave2, preSave3MaybeFail],
+            })
+
+            server.use('/users', crud);
+            server.use(function(err, req, res, next) {
+                res.status(err.statusCode);
+                res.send({
+                    message   : err.message,
+                    statusCode: err.statusCode,
+                });
+            });
+
+            req = superTestAsPromised(server);
+
+            await Model.remove({});
+        });
+
+        afterEach(async () => {
+            await db.close();
+        });
+
+        it('preSave functions should be run', async () => {
+            const n = Math.random();
+
+            const name = 'Name index #' + n;
+            const email = `user+${n}@example.com`;
+            const reqBody = {
+                name,
+                email,
+            };
+            const {body, statusCode} = await req.post('/users').send(reqBody);
+
+            expect(preSave1).to.have.been.callCount(1);
+            expect(preSave2).to.have.been.callCount(1);
+
+            expect(preSave1.firstCall.args[0].name).to.eq(name);
+            expect(preSave1.firstCall.args[0].email).to.eq(email);
+        });
+
+        it('should be able to prevent saving', async () => {
+            shouldFail = true;
+
+            const n = Math.random();
+
+            const name = 'Name index #' + n;
+            const email = `user+${n}@example.com`;
+            const reqBody = {
+                name,
+                email,
+            };
+            const {body, statusCode} = await req.post('/users').send(reqBody);
+
+            expect(preSave1).to.have.been.callCount(1);
+            expect(preSave2).to.have.been.callCount(1);
+
+            console.log({body, statusCode})
+            expect(statusCode).to.eq(400);
+            expect(body.message).to.eq(`invalid value name='${name}'`);
+        });
+
+        it('should not get to preSave is item is invalid', async () => {
+            const n = Math.random();
+
+            const name = 'Name index #' + n;
+            const reqBodyMissingEmail = {
+                name,
+            };
+            const {body, statusCode} = await req.post('/users').send(reqBodyMissingEmail);
+
+            expect(preSave1).to.have.been.callCount(0);
+            expect(preSave2).to.have.been.callCount(0);
+
+            expect(statusCode).to.not.eq(200);
+            expect(statusCode).to.not.eq(201);
+        });
+    });
+
     describe('faulty usage', () => {
         before(async () => {
             db = mongoose.createConnection('mongodb://localhost:27017/express-crudify-mongoose--integration_tests');
@@ -209,6 +320,10 @@ describe('crudify integration test', () => {
             });
 
             Model = db.model('user', UserSchema);
+        });
+
+        after(async () => {
+            await db.close();
         });
 
         it('should blow up when trying to protect deep properties', async () => {

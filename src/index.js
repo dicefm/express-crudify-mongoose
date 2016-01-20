@@ -5,10 +5,16 @@ import buildQuery from './lib/build-query';
 import pipeData from './lib/pipe-data';
 import normaliseMongo from './lib/normalise-mongo';
 import cleanBody from './lib/clean-body';
+import runPreSave from './lib/run-pre-save';
 
 const debug = require('debug')('crudify:crudify');
 
-export default function({Model, preOutput, readonly = []}) {
+export default function({
+    Model,
+    preOutput = [],
+    preSave = [],
+    readonly = [],
+}) {
     const router = express.Router();
 
     for (const path of readonly) {
@@ -58,6 +64,7 @@ export default function({Model, preOutput, readonly = []}) {
             item[path] = body[path];
         }
 
+        await pipeData({pipes: preSave, item});
         await item.save();
 
         const data = normaliseMongo(item);
@@ -88,6 +95,7 @@ export default function({Model, preOutput, readonly = []}) {
 
         const item = new Model(body);
 
+        await runPreSave({preSave, item});
         await item.save();
 
         const data = normaliseMongo(item);
