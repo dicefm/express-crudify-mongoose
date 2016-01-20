@@ -8,6 +8,8 @@ describe('buildQuery', () => {
         query = {
             where : sinon.spy(),
             select: sinon.spy(),
+            limit : sinon.spy(),
+            skip  : sinon.spy(),
         }
     });
 
@@ -78,6 +80,36 @@ describe('buildQuery', () => {
             expect(query.where).to.have.been.calledWith({
                 name: 'KATT',
             });
+        });
+    });
+
+    describe('?$limit=x', () => {
+        it('should limit query', () => {
+            const req = {
+                query: {
+                    $limit: '2',
+                }
+            };
+
+            buildQuery({req, query});
+
+            expect(query.limit).to.have.been.callCount(1);
+            expect(query.limit).to.have.been.calledWith(2);
+        });
+    });
+
+    describe('?$skip=x', () => {
+        it('should skip query', () => {
+            const req = {
+                query: {
+                    $skip: '3',
+                }
+            };
+
+            buildQuery({req, query});
+
+            expect(query.skip).to.have.been.callCount(1);
+            expect(query.skip).to.have.been.calledWith(3);
         });
     });
 });
