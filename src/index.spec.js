@@ -156,7 +156,7 @@ describe('crudify integration test', () => {
             });
         });
 
-        describe('pagination', () => {
+        describe('when adding a bunch of entries', () => {
             const NUM_ENTRIES = 9;
 
             before(async () => {
@@ -172,31 +172,53 @@ describe('crudify integration test', () => {
                 }
             });
 
-            it('should display everything', async () => {
-                const {body, statusCode} = await req.get('/users');
+            describe('pagination', () => {
+                it('should display everything', async () => {
+                    const {body, statusCode} = await req.get('/users');
 
-                expect(body.length).to.eq(NUM_ENTRIES);
+                    expect(body.length).to.eq(NUM_ENTRIES);
+                });
+
+                it('?$skip=2 should skip 2', async () => {
+                    const {body, statusCode} = await req.get('/users?$skip=2');
+
+                    expect(body.length).to.eq(NUM_ENTRIES - 2);
+                });
+
+                it('?$limit=2 should limit to 2', async () => {
+                    const {body, statusCode} = await req.get('/users?$limit=2');
+
+                    expect(body.length).to.eq(2);
+                });
+
+                it('?$skip=${NUM_ENTRIES-1}&$limit=2 should show 1', async () => {
+                    const {body, statusCode} = await req.get(`/users?$skip=${NUM_ENTRIES-1}&$limit=2`);
+
+                    expect(body.length).to.eq(1);
+                });
             });
 
-            it('?$skip=2 should skip 2', async () => {
-                const {body, statusCode} = await req.get('/users?$skip=2');
+            describe('sorting', () => {
+                it('should support asc sorting', async () => {
+                    const {body, statusCode} = await req.get('/users?$sort=name');
 
-                expect(body.length).to.eq(NUM_ENTRIES - 2);
-            });
+                    const [user0, user1] = body;
+                    expect(user0.name.endsWith('#0')).to.be.truthy;
+                    expect(user1.name.endsWith('#1')).to.be.truthy;
+                });
 
-            it('?$limit=2 should limit to 2', async () => {
-                const {body, statusCode} = await req.get('/users?$limit=2');
+                it('should support desc sorting', async () => {
+                    const {body, statusCode} = await req.get('/users?$sort=-name');
 
-                expect(body.length).to.eq(2);
-            });
-
-            it('?$skip=${NUM_ENTRIES-1}&$limit=2 should show 1', async () => {
-                const {body, statusCode} = await req.get(`/users?$skip=${NUM_ENTRIES-1}&$limit=2`);
-
-                expect(body.length).to.eq(1);
+                    const [user0, user1] = body;
+                    expect(user0.name.endsWith('#9')).to.be.truthy;
+                    expect(user1.name.endsWith('#8')).to.be.truthy;
+                });
             });
         });
     });
+
+
 
     describe('preSave', () => {
         let preSave1, preSave2, preSave3MaybeFail;

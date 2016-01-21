@@ -13,6 +13,7 @@ export default ({query, req}) => {
         $skip,
         $limit,
         $select,
+        $sort,
         ...where,
     } = req.query;
 
@@ -36,6 +37,28 @@ export default ({query, req}) => {
         checkValue(skip, _.isFinite, '$skip');
 
         query.skip(skip);
+    }
+
+    if (!_.isUndefined($sort)) {
+        let sort = $sort;
+
+        if (_.isString(sort)) {
+            const paths = $sort.split(',');
+            sort = {};
+            for (let path of paths) {
+                let direction = 1;
+                if (path.startsWith('-')) {
+                    path = path.substr(1);
+                    direction = -1;
+                }
+
+                sort[path] = direction;
+            }
+        }
+
+
+        checkValue(sort, _.isPlainObject, 'sort');
+        query.sort(sort);
     }
 
     if (!_.isUndefined($select)) {

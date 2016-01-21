@@ -10,6 +10,7 @@ describe('buildQuery', () => {
             select: sinon.spy(),
             limit : sinon.spy(),
             skip  : sinon.spy(),
+            sort  : sinon.spy(),
         }
     });
 
@@ -146,6 +147,40 @@ describe('buildQuery', () => {
 
             expect(err).to.be.an.instanceof(Error);
             expect(err.message).to.eq(`Invalid value for param '$skip'`);
+        });
+    });
+
+    describe('?$sort=x', () => {
+        it('comma-separated should work', () => {
+            const req = {
+                query: {
+                    $sort: 'name,email',
+                }
+            };
+
+            buildQuery({req, query});
+
+            expect(query.sort).to.have.been.callCount(1);
+            expect(query.sort).to.have.been.calledWith({
+                name : 1,
+                email: 1,
+            });
+        });
+
+        it('desc sorting should work', () => {
+            const req = {
+                query: {
+                    $sort: 'name,-email',
+                }
+            };
+
+            buildQuery({req, query});
+
+            expect(query.sort).to.have.been.callCount(1);
+            expect(query.sort).to.have.been.calledWith({
+                name : 1,
+                email: -1,
+            });
         });
     });
 });
