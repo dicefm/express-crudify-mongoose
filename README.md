@@ -24,7 +24,7 @@ Produces a simple CRUD interface.
 npm install express-crudify-mongoose --save
 ```
 
-```jsx
+```js
 const UserSchema = new Schema({
     name : {type: String, required: true},
     email: {type: String, required: true},
@@ -42,7 +42,7 @@ const crud = crudify({
 server.use('/users', crud);
 ```
 
-Will create following endpoints
+### Endpoints
 
 * GET `/users`
 * POST `/users`
@@ -50,7 +50,94 @@ Will create following endpoints
 * PATCH `/users/:_id`
 * DELETE `/users/:_id`
 
-There's also some ways of filtering/selecting/formatting your output - documentation TBC.
+
+### Operations
+
+
+
+#### Filter
+
+```
+GET /users?name=Alex
+```
+
+Select all users with where name `Alex`.
+
+
+#### Selecting partial outputs
+
+```
+GET /users?$select=name,email
+GET /users/:id?$select=name,email
+```
+
+Only output name & email.
+
+### Middlewares
+
+Middlewares can be async by being ES7 async functions or functions returning promises. 
+
+If you pass in an array of functions, they'll be executed sequentially.
+
+
+#### preSave
+
+Useful for custom validation, that you'd only want to run when change is done through API request and can therefore simply not be done by Mongoose's `.pre('save', fn)`.
+
+
+```js
+const readonly = ['admin'];
+const Users = db.model('user', UserSchema);
+
+const preSave = async (user) => {
+	if (user.admin) {
+		let err = new Error("Can't change admin users through API");
+		err.statusCode = 400;
+
+		throw err;
+	}
+	let err = new Error('Validation failed');
+	
+	
+	const newData = data;
+	
+	// return the newData that you want in the output
+	return newData;
+}
+
+const crud = crudify({
+    Model: Users,
+    readonly,
+    preSave, // preSave: [preSave, ..] is also supported
+});
+```
+
+
+#### preOutput
+
+`preOutput` functions will receive an object with properties `data` and `req`.
+
+* `req` is the current 
+* `data` is the data that is currently set to be output to client.
+
+
+Note that `preOutput` is run the same for all endpoints, so sometimes `data` is an array and sometimes it's a singular item.
+
+```js
+const Users = db.model('user', UserSchema);
+
+const preOutput = async (data) => {
+	const newData = data;
+	
+	// return the newData that you want in the output
+	return newData;
+}
+
+const crud = crudify({
+    Model: Users,
+    preOutput, // preOutput: [preOutput, ..] is also supported
+});
+```
 
 
 ### Development

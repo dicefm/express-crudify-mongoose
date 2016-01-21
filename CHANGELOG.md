@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * :sparkles: add pagination support - `&$limit` & `&$skip`
 * :sparkles: `preSave` functions
+* :sparkles: sorting results
 
 
 ## 0.1.0
