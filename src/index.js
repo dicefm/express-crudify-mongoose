@@ -64,7 +64,7 @@ export default function({
             item[path] = body[path];
         }
 
-        await pipeData({pipes: preSave, item});
+        await runPreSave({preSave, item});
         await item.save();
 
         const data = normaliseMongo(item);
