@@ -3,10 +3,10 @@ Express CRUDify Mongoose
 
 
 [![NPM version](https://badge.fury.io/js/express-crudify-mongoose.svg)](http://badge.fury.io/js/express-crudify-mongoose)
-[![Build Status](https://img.shields.io/travis/KATT/express-crudify-mongoose.svg)](https://travis-ci.org/KATT/express-crudify-mongoose)
-[![Coverage Status](https://img.shields.io/coveralls/KATT/express-crudify-mongoose.svg)](https://coveralls.io/r/KATT/express-crudify-mongoose?branch=master)
-[![Dependency Status](https://img.shields.io/david/KATT/express-crudify-mongoose.svg)](https://david-dm.org/KATT/express-crudify-mongoose)
-[![devDependency Status](https://img.shields.io/david/dev/KATT/express-crudify-mongoose.svg)](https://david-dm.org/KATT/express-crudify-mongoose#info=devDependencies)
+[![Build Status](https://img.shields.io/travis/dicefm/express-crudify-mongoose.svg)](https://travis-ci.org/dicefm/express-crudify-mongoose)
+[![Coverage Status](https://img.shields.io/coveralls/dicefm/express-crudify-mongoose.svg)](https://coveralls.io/r/dicefm/express-crudify-mongoose?branch=master)
+[![Dependency Status](https://img.shields.io/david/dicefm/express-crudify-mongoose.svg)](https://david-dm.org/dicefm/express-crudify-mongoose)
+[![devDependency Status](https://img.shields.io/david/dev/dicefm/express-crudify-mongoose.svg)](https://david-dm.org/dicefm/express-crudify-mongoose#info=devDependencies)
 
 Like [express-restify-mongoose](https://github.com/florianholzapfel/express-restify-mongoose) but with way less ambition.
 
