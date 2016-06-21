@@ -28,7 +28,7 @@
   "homepage": "https://github.com/dicefm/express-crudify-mongoose",
   "devDependencies": {
     "babel-cli": "^6.9.0",
-    "babel-core": "^6.9.1",
+    "babel-core": "^6.10.4",
     "babel-eslint": "^6.0.4",
     "babel-loader": "^6.2.4",
     "babel-polyfill": "^6.9.1",
