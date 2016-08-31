@@ -5,8 +5,8 @@ services:
 
 node_js:
   - "stable"
-  - "6"
-  - "0.10"
+  - "6.1"
+  - "5"
 
 after_success:
   - "npm run test:cov"
