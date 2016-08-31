@@ -63,6 +63,9 @@ GET /users?name=Alex
 
 Select all users with where name `Alex`.
 
+The query gets [forwarded straight to MongoDB](https://github.com/dicefm/express-crudify-mongoose/blob/93c0ef715f1b45a19efd20b17d150c634fd7dd70/src/lib/build-query.js#L23), so it's possible to write queries like `/posts?date[$gt]=2016-01-01T00:00:00.000Z` to get all posts dated after 2016. 
+
+:warning: If you're making a public-facing API, you might want to write an issue and we can add ways to validate / minimise the risks that comes with this.
 
 #### Selecting partial outputs
 
@@ -72,6 +75,15 @@ GET /users/:id?$select=name,email
 ```
 
 Only output name & email.
+
+
+#### Pagination
+
+```
+GET /users?$limit=10
+GET /users?$limit=10&skip=10
+```
+
 
 ### Middlewares
 
