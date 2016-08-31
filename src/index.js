@@ -78,7 +78,7 @@ export default function({
         const {_id} = req.params;
 
         const query = Model.findById(_id);
-        const item = await query.exec();
+        const item = await query.select('_id').exec();
 
         if (!item) {
             next();
