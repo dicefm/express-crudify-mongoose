@@ -254,16 +254,15 @@ describe('crudify integration test', () => {
 
 
         it('should enable to you to pipe params through middlewares', async () => {
-            const spy1 = sinon.spy(({data}) => {
-                console.log('Alex', arguments);
-                expect(data).to.deep.eq({name: 'Alex'});
+            const spy1 = sinon.spy(params => {
+                expect(params).to.deep.eq({name: 'Alex'});
 
                 return {name: 'Tiffany'};
             });
-            const spy2 = sinon.spy(({data}) => {
-                expect(data).to.deep.eq({name: 'Tiffany'});
+            const spy2 = sinon.spy(params => {
+                expect(params).to.deep.eq({name: 'Tiffany'});
 
-                return data;
+                return params;
             });
             const crud = crudify({
                 Model,
@@ -384,7 +383,6 @@ describe('crudify integration test', () => {
             expect(preSave1).to.have.been.callCount(1);
             expect(preSave2).to.have.been.callCount(1);
 
-            console.log({body, statusCode})
             expect(statusCode).to.eq(400);
             expect(body.message).to.eq(`invalid value name='${name}'`);
         });

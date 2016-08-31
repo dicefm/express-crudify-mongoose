@@ -27,12 +27,12 @@ export default function({
     const {schema} = Model;
 
     router.get('/', asyncMiddleware(async (req, res, next) => {
-        const params = await pipeData({pipes: preBuildQuery, data: req.query, req});
+        const params = await pipeData(preBuildQuery, req.query, req);
         const query = buildQuery({params, query: Model.find()});
 
         const data = await query.lean().exec();
 
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.send(output);
     }));
@@ -49,7 +49,7 @@ export default function({
             return;
         }
 
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.send(output);
     }));
@@ -71,7 +71,7 @@ export default function({
 
         const data = normaliseMongo(item);
 
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.send(output);
     }));
@@ -101,7 +101,7 @@ export default function({
         await item.save();
 
         const data = normaliseMongo(item);
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.status(201).send(output);
     }));
