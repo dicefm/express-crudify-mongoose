@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## 4.0.0
+
+* :arrow_up: update all deps
+* :warning: discontinue node < 5 support
+
+## 3.0.0
+
+* :arrow_up: update all deps
+
 ## 0.2.0
 
 * :bug: patch runPreSave fix
