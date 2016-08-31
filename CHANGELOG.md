@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## next release
+
+* :racehorse: fetch lean models on GET
+* :racehorse: only fetch _id when deleting
 
 ## 4.0.0
 

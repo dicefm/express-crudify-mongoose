@@ -28,8 +28,7 @@ export default function({
     router.get('/', asyncMiddleware(async (req, res, next) => {
         const query = buildQuery({req, query: Model.find()});
 
-        const items = await query.exec();
-        const data = normaliseMongo(items);
+        const data = await query.lean().exec();
 
         const output = await pipeData({pipes: preOutput, data, req});
 
@@ -40,14 +39,13 @@ export default function({
         const {_id} = req.params;
 
         const query = buildQuery({req, query: Model.findById(_id)});
-        const item = await query.exec();
+        const data = await query.lean().exec();
 
-        if (!item) {
+        if (!data) {
             next();
             return;
         }
 
-        const data = normaliseMongo(item);
         const output = await pipeData({pipes: preOutput, data, req});
 
         res.send(output);
@@ -78,7 +76,7 @@ export default function({
         const {_id} = req.params;
 
         const query = Model.findById(_id);
-        const item = await query.exec();
+        const item = await query.select('_id').exec();
 
         if (!item) {
             next();

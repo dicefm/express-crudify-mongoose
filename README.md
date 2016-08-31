@@ -158,6 +158,7 @@ const crud = crudify({
 * `make setup`
 * `make run`
 
+You can run example project with `make example-babel`
 
 #### Git Commit Messages
 
