@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## next release
 
-
+- :sparkles: preBuildQuery middleware
 
 ## 4.1.0
 

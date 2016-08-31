@@ -13,6 +13,7 @@ export default function({
     Model,
     preOutput = [],
     preSave = [],
+    preBuildQuery = [],
     readonly = [],
 }) {
     const router = express.Router();
@@ -26,7 +27,8 @@ export default function({
     const {schema} = Model;
 
     router.get('/', asyncMiddleware(async (req, res, next) => {
-        const query = buildQuery({params: req.query, query: Model.find()});
+        const params = await pipeData({pipes: preBuildQuery, data: req.query, req});
+        const query = buildQuery({params, query: Model.find()});
 
         const data = await query.lean().exec();
 
@@ -38,7 +40,8 @@ export default function({
     router.get('/:_id', asyncMiddleware(async (req, res, next) => {
         const {_id} = req.params;
 
-        const query = buildQuery({params: req.query, query: Model.findById(_id)});
+        const params = req.query;
+        const query = buildQuery({params, query: Model.findById(_id)});
         const data = await query.lean().exec();
 
         if (!data) {
@@ -55,7 +58,8 @@ export default function({
         const {body} = req;
         const {_id} = req.params;
 
-        const query = buildQuery({params: req.query, query: Model.findById(_id)});
+        const params = req.query;
+        const query = buildQuery({params, query: Model.findById(_id)});
         const item = await query.exec();
 
         for (const path in body) {

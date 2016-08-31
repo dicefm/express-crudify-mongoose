@@ -218,7 +218,82 @@ describe('crudify integration test', () => {
         });
     });
 
+    describe('preBuildQuery', () => {
+        let server;
+        let req;
+        let Model;
 
+        beforeEach(async () => {
+            server = express();
+            server.use(bodyParser.json());
+
+            db = mongoose.createConnection('mongodb://localhost:27017/express-crudify-mongoose--integration_tests');
+
+            const UserSchema = new Schema({
+                name : {type: String, required: true},
+                email: {type: String, required: true},
+                admin: {type: Boolean, default: false, required: true},
+            });
+
+            Model = db.model('user', UserSchema);
+
+            req = superTestAsPromised(server);
+
+            await Model.remove({});
+
+            await Model.insertMany([
+                {name: 'Alex', email: 'alex@company.com', },
+                {name: 'John', email: 'john@company.com', },
+                {name: 'Tiffany', email: 'tiffany@company.com', },
+            ]);
+        });
+
+        afterEach(async () => {
+            await db.close();
+        });
+
+
+        it('should enable to you to pipe params through middlewares', async () => {
+            const spy1 = sinon.spy(({data}) => {
+                console.log('Alex', arguments);
+                expect(data).to.deep.eq({name: 'Alex'});
+
+                return {name: 'Tiffany'};
+            });
+            const spy2 = sinon.spy(({data}) => {
+                expect(data).to.deep.eq({name: 'Tiffany'});
+
+                return data;
+            });
+            const crud = crudify({
+                Model,
+                preBuildQuery: [
+                    spy1,
+                    spy2,
+                ],
+            })
+
+            server.use('/users', crud);
+            server.use(function(err, req, res, next) {
+                res.status(err.statusCode);
+                res.send({
+                    message   : err.message,
+                    statusCode: err.statusCode,
+                });
+            });
+
+
+            const {body, statusCode} = await req.get('/users?name=Alex');
+
+            expect(statusCode).to.eq(200);
+            expect(body).to.be.an('array');
+
+            expect(body.length).to.eq(1);
+
+            expect(spy1).to.have.been.callCount(1);
+            expect(spy2).to.have.been.callCount(1);
+        });
+    });
 
     describe('preSave', () => {
         let preSave1, preSave2, preSave3MaybeFail;
