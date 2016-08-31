@@ -5,7 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## next release
 
-
+- :sparkles: preBuildQuery middleware
+- :art: pipes receive multiple args instead of complex object (breaking change)
 
 ## 4.1.0
 

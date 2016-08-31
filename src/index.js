@@ -13,6 +13,7 @@ export default function({
     Model,
     preOutput = [],
     preSave = [],
+    preBuildQuery = [],
     readonly = [],
 }) {
     const router = express.Router();
@@ -26,11 +27,12 @@ export default function({
     const {schema} = Model;
 
     router.get('/', asyncMiddleware(async (req, res, next) => {
-        const query = buildQuery({req, query: Model.find()});
+        const params = await pipeData(preBuildQuery, req.query, req);
+        const query = buildQuery({params, query: Model.find()});
 
         const data = await query.lean().exec();
 
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.send(output);
     }));
@@ -38,7 +40,8 @@ export default function({
     router.get('/:_id', asyncMiddleware(async (req, res, next) => {
         const {_id} = req.params;
 
-        const query = buildQuery({req, query: Model.findById(_id)});
+        const params = await pipeData(preBuildQuery, req.query, req);
+        const query = buildQuery({params, query: Model.findById(_id)});
         const data = await query.lean().exec();
 
         if (!data) {
@@ -46,7 +49,7 @@ export default function({
             return;
         }
 
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.send(output);
     }));
@@ -55,7 +58,8 @@ export default function({
         const {body} = req;
         const {_id} = req.params;
 
-        const query = buildQuery({req, query: Model.findById(_id)});
+        const params = await pipeData(preBuildQuery, req.query, req);
+        const query = buildQuery({params, query: Model.findById(_id)});
         const item = await query.exec();
 
         for (const path in body) {
@@ -67,7 +71,7 @@ export default function({
 
         const data = normaliseMongo(item);
 
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.send(output);
     }));
@@ -97,7 +101,7 @@ export default function({
         await item.save();
 
         const data = normaliseMongo(item);
-        const output = await pipeData({pipes: preOutput, data, req});
+        const output = await pipeData(preOutput, data, req);
 
         res.status(201).send(output);
     }));

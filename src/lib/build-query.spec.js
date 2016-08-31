@@ -14,12 +14,11 @@ describe('buildQuery', () => {
         }
     });
 
-    it('should work with empty req.query', () => {
-        const req = {
-            query: {}
+    it('should work with empty params', () => {
+        const params = {
         };
 
-        buildQuery({req, query});
+        buildQuery({params, query});
 
         expect(query.select).to.have.been.notCalled;
         expect(query.where).to.have.been.notCalled;
@@ -28,13 +27,11 @@ describe('buildQuery', () => {
     describe('?$select=', () => {
         it('should work with comma-separated values', () => {
             const $select = 'name,email';
-            const req = {
-                query: {
-                    $select,
-                }
+            const params = {
+                $select,
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.select).to.have.been.callCount(1);
             expect(query.where).to.have.been.notCalled;
@@ -47,13 +44,11 @@ describe('buildQuery', () => {
 
         it('should work with object', () => {
             const $select = {name: true, email: true};
-            const req = {
-                query: {
-                    $select,
-                }
+            const params = {
+                $select,
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.select).to.have.been.callCount(1);
             expect(query.where).to.have.been.notCalled;
@@ -67,13 +62,11 @@ describe('buildQuery', () => {
 
     describe('?someField=x', () => {
         it('should be added to query.where', () => {
-            const req = {
-                query: {
-                    name: 'KATT',
-                }
+            const params = {
+                name: 'KATT',
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.where).to.have.been.callCount(1);
             expect(query.select).to.have.been.notCalled;
@@ -86,28 +79,24 @@ describe('buildQuery', () => {
 
     describe('?$limit=x', () => {
         it('should limit query', () => {
-            const req = {
-                query: {
-                    $limit: '2',
-                }
+            const params = {
+                $limit: '2',
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.limit).to.have.been.callCount(1);
             expect(query.limit).to.have.been.calledWith(2);
         });
 
         it('should blow up with invalid types', () => {
-            const req = {
-                query: {
-                    $limit: {},
-                }
+            const params = {
+                $limit: {},
             };
 
             let err;
             try {
-                buildQuery({req, query});
+                buildQuery({params, query});
             } catch (e) {
                 err = e;
             }
@@ -119,28 +108,24 @@ describe('buildQuery', () => {
 
     describe('?$skip=x', () => {
         it('should skip query', () => {
-            const req = {
-                query: {
-                    $skip: '3',
-                }
+            const params = {
+                $skip: '3',
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.skip).to.have.been.callCount(1);
             expect(query.skip).to.have.been.calledWith(3);
         });
 
         it('should blow up with invalid types', () => {
-            const req = {
-                query: {
-                    $skip: {},
-                }
+            const params = {
+                $skip: {},
             };
 
             let err;
             try {
-                buildQuery({req, query});
+                buildQuery({params, query});
             } catch (e) {
                 err = e;
             }
@@ -152,13 +137,11 @@ describe('buildQuery', () => {
 
     describe('?$sort=x', () => {
         it('comma-separated should work', () => {
-            const req = {
-                query: {
-                    $sort: 'name,email',
-                }
+            const params = {
+                $sort: 'name,email',
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.sort).to.have.been.callCount(1);
             expect(query.sort).to.have.been.calledWith({
@@ -168,13 +151,11 @@ describe('buildQuery', () => {
         });
 
         it('desc sorting should work', () => {
-            const req = {
-                query: {
-                    $sort: 'name,-email',
-                }
+            const params = {
+                $sort: 'name,-email',
             };
 
-            buildQuery({req, query});
+            buildQuery({params, query});
 
             expect(query.sort).to.have.been.callCount(1);
             expect(query.sort).to.have.been.calledWith({

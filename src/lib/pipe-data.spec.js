@@ -8,10 +8,10 @@ describe('pipeData', () => {
     });
 
     function mockPipe(id) {
-        const fn = sinon.spy(async (opts) => {
+        const fn = sinon.spy(async (data) => {
             called.push(id);
 
-            return opts.data;
+            return data;
         });
         return fn;
     }
@@ -22,7 +22,7 @@ describe('pipeData', () => {
         const pipes = mw1;
         const data = {foo: 'bar'};
 
-        await pipeData({pipes, data});
+        await pipeData(pipes, data);
 
         expect(called).to.deep.eq([1]);
     });
@@ -35,7 +35,7 @@ describe('pipeData', () => {
         const pipes = [mw1, mw2, mw3];
         const data = {foo: 'bar'};
 
-        await pipeData({pipes, data});
+        await pipeData(pipes, data);
 
         expect(called).to.deep.eq([1,2,3]);
     });
@@ -50,7 +50,7 @@ describe('pipeData', () => {
         const pipes = [mw1, mw2, mw3, mw4, mw5];
         const data = {foo: 'bar'};
 
-        pipeData({pipes, data});
+        pipeData(pipes, data);
 
         expect(called).to.deep.eq([1]);
 
@@ -84,10 +84,10 @@ describe('pipeData', () => {
 
         const extraData = {connection: '...'};
 
-        await pipeData({pipes, data, extraData});
+        await pipeData(pipes, data, extraData);
 
         expect(called).to.deep.eq([1]);
 
-        expect(mw1.firstCall.args[0].extraData).to.deep.eq(extraData);
+        expect(mw1.firstCall.args[1]).to.deep.eq(extraData);
     });
 });
