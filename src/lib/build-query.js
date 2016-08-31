@@ -8,14 +8,14 @@ function checkValue(value, validator, fieldName) {
     }
 }
 
-export default ({query, req}) => {
+export default ({query, params}) => {
     const {
         $skip,
         $limit,
         $select,
         $sort,
         ...where,
-    } = req.query;
+    } = params;
 
     const fields = $select;
 
