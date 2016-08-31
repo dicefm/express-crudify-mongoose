@@ -40,7 +40,7 @@ export default function({
     router.get('/:_id', asyncMiddleware(async (req, res, next) => {
         const {_id} = req.params;
 
-        const params = req.query;
+        const params = await pipeData(preBuildQuery, req.query, req);
         const query = buildQuery({params, query: Model.findById(_id)});
         const data = await query.lean().exec();
 
@@ -58,7 +58,7 @@ export default function({
         const {body} = req;
         const {_id} = req.params;
 
-        const params = req.query;
+        const params = await pipeData(preBuildQuery, req.query, req);
         const query = buildQuery({params, query: Model.findById(_id)});
         const item = await query.exec();
 
