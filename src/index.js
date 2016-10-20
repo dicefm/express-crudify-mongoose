@@ -30,7 +30,7 @@ export default function({
         const params = await pipeData(preBuildQuery, req.query, req);
         const query = buildQuery({params, query: Model.find()});
 
-        const data = await query.lean().exec();
+        const data = await query.exec();
 
         const output = await pipeData(preOutput, data, req);
 
@@ -42,7 +42,7 @@ export default function({
 
         const params = await pipeData(preBuildQuery, req.query, req);
         const query = buildQuery({params, query: Model.findById(_id)});
-        const data = await query.lean().exec();
+        const data = await query.exec();
 
         if (!data) {
             next();
