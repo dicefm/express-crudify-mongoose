@@ -436,4 +436,115 @@ describe('crudify integration test', () => {
             expect(err.message).to.eq('You can only define readonly properties on the root level');
         });
     });
+
+    describe('virtual attributes', () => {
+        before(async () => {
+            server = express();
+            server.use(bodyParser.json());
+
+            db = mongoose.createConnection('mongodb://localhost:27017/express-crudify-mongoose--integration_tests');
+
+            const UserSchema = new Schema({
+                firstName: {type: String, required: true},
+                lastName : {type: String, required: true},
+                email    : {type: String, required: true},
+                admin    : {type: Boolean, default: false, required: true},
+            }, {
+                toObject: {
+                    virtuals: true,
+                },
+                toJSON: {
+                    virtuals: true,
+                },
+            });
+
+            UserSchema.virtual('fullName').get(function() {
+                const {firstName, lastName} = this;
+                return `${firstName} ${lastName}`;
+            });
+
+            Model = db.model('user', UserSchema);
+            const readonly = ['admin'];
+
+            const crud = crudify({
+                Model,
+                readonly,
+            })
+
+            server.use('/users', crud);
+
+            req = superTestAsPromised(server);
+
+            await Model.remove({});
+
+            server.use((req, res, next) => {
+                res.sendStatus(404);
+            });
+        });
+
+        after(async () => {
+            await db.close();
+        });
+
+        describe('selecting virtual fields', () => {
+            let firstName, lastName, email;
+            beforeEach(() => {
+                firstName = 'firstName' + Math.random();
+                lastName = 'lastName' + Math.random();
+                email = `user+${Math.random}@example.com`;
+            });
+
+            it('should work straight after creation', async () => {
+                const reqBody = {
+                    firstName,
+                    lastName,
+                    email,
+                };
+                const {body, statusCode} = await req.post('/users').send(reqBody);
+                expect(statusCode).to.eq(201);
+
+                expect(body._id).to.be.truthy;
+                expect(body.firstName).to.eq(firstName);
+                expect(body.lastName).to.eq(lastName);
+                expect(body['fullName']).to.eq(`${firstName} ${lastName}`);
+            });
+
+            it('should work with $select in collection', async () => {
+                const reqBody = {
+                    firstName,
+                    lastName,
+                    email,
+                };
+                const postResponse = await req.post('/users').send(reqBody);
+                expect(postResponse.statusCode).to.eq(201);
+
+                const {body, statusCode} = await req.get('/users?$select=firstName,lastName,fullName');
+
+                expect(statusCode).to.eq(200);
+                expect(body).to.be.an('array');
+
+                const user = body.find(data => String(data._id) === String(postResponse.body._id));
+
+                expect(user).to.be.an('object');
+                expect(user.fullName).to.eq(`${firstName} ${lastName}`);
+            });
+
+            it('should work with $select in get id', async () => {
+                const reqBody = {
+                    firstName,
+                    lastName,
+                    email,
+                };
+                const postResponse = await req.post('/users').send(reqBody);
+                expect(postResponse.statusCode).to.eq(201);
+
+                const {body, statusCode} = await req.get(`/users/${postResponse.body._id}?$select=firstName,lastName,fullName`);
+
+                expect(statusCode).to.eq(200);
+
+                expect(body).to.be.an('object');
+                expect(body.fullName).to.eq(`${firstName} ${lastName}`);
+            });
+        });
+    });
 });
