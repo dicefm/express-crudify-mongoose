@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## next release
 
 
+## 5.0.1
+
+- :bug: fix support for virtuals ([#80](https://github.com/dicefm/express-crudify-mongoose/issues/80))
+
+
 ## 5.0.0
 
 - :sparkles: preBuildQuery middleware
